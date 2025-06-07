@@ -1,0 +1,234 @@
+
+        .navbar {
+            background: linear-gradient(to right, #6a0dad, #8e2de2);
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .logo i {
+            font-size: 1.8rem;
+        }
+        .nav-links {
+            list-style: none;
+            display: flex;
+            gap: 1.5rem;
+        }
+        .nav-links li a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        .nav-links li a:hover {
+            color: #e0caff;
+        }
+
+        .about-section, .team-section, .mission-section, .values-section {
+            padding: 4rem 2rem;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .about-section h2, .team-section h2, .mission-section h2, .values-section h2 {
+            font-size: 2.2rem;
+            color: #4b0082;
+            margin-bottom: 2rem;
+            position: relative;
+            display: inline-block;
+        }
+
+        .about-section h2::after, .team-section h2::after, .mission-section h2::after, .values-section h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 70px;
+            height: 4px;
+            background: #8e2de2;
+            border-radius: 2px;
+        }
+
+        .about-content, .mission-content {
+            font-size: 1.1rem;
+            color: #555;
+            line-height: 1.8;
+            text-align: left;
+            margin-bottom: 2rem;
+        }
+
+        .about-highlight {
+            background: #e0caff;
+            color: #4b0082;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 1.5rem;
+        }
+
+        .team-cards {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .team-card {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            width: 280px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .team-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .team-card img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 1rem;
+            border: 4px solid #8e2de2;
+        }
+
+        .team-card h3 {
+            font-size: 1.3rem;
+            color: #4b0082;
+            margin-bottom: 0.5rem;
+        }
+
+        .team-card p {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .social-links a {
+            color: #8e2de2;
+            font-size: 1.3rem;
+            margin: 0 0.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: #6a0dad;
+        }
+
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .value-item {
+            background: #f5efff;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: left;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .value-item:hover {
+            transform: translateY(-5px);
+            background: #e0caff;
+        }
+
+        .value-item i {
+            font-size: 2.5rem;
+            color: #8e2de2;
+            margin-bottom: 1rem;
+        }
+
+        .value-item h3 {
+            font-size: 1.2rem;
+            color: #4b0082;
+            margin-bottom: 0.8rem;
+        }
+
+        .value-item p {
+            font-size: 0.95rem;
+            color: #555;
+        }
+
+        .footer {
+            background: #6a0dad;
+            color: #fff;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+        .footer-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .footer-logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 1.5rem 0;
+        }
+        .footer-links a {
+            color: #e0caff;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .footer-links a:hover {
+            color: #fff;
+        }
+        .footer-bottom {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            .nav-links {
+                flex-direction: column;
+                gap: 0.8rem;
+                margin-top: 1rem;
+            }
+            .about-section, .team-section, .mission-section, .values-section {
+                padding: 2rem 1rem;
+            }
+            .team-card, .value-item {
+                width: 100%;
+            }
+        }
