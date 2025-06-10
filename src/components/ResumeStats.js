@@ -1,27 +1,42 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-export default function ResumeStats() {
-  const [uploadCount, setUploadCount] = useState(0);
-  const [timestamp, setTimestamp] = useState('');
+const ResumeStats = () => {
+  const [resumeCount, setResumeCount] = useState(0);
+  const [lastChecked, setLastChecked] = useState('');
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTimestamp(new Date().toLocaleTimeString());
-    }, 1000);
+    const updateStats = () => {
+      const files = document.getElementById('resumes')?.files;
+      if (files && files.length > 0) {
+        setResumeCount(files.length);
+      }
+      const now = new Date();
+      setLastChecked(now.toLocaleTimeString());
+    };
 
-    return () => clearInterval(interval);
+    const form = document.getElementById('uploadForm');
+    form?.addEventListener('submit', updateStats);
+
+    return () => {
+      form?.removeEventListener('submit', updateStats);
+    };
   }, []);
 
-  const incrementCount = () => {
-    setUploadCount(uploadCount + 1);
-  };
-
   return (
-    <div>
-      <h2>Resume Stats</h2>
-      <p>Total Resumes Uploaded: {uploadCount}</p>
-      <p>Last Checked: {timestamp}</p>
-      <button onClick={incrementCount}>Simulate Upload</button>
-    </div>
+    <section className="stats-section">
+      <h3>Resume Stats</h3>
+      <p>Total Resumes Uploaded: {resumeCount}</p>
+      <p>Last Checked: {lastChecked}</p>
+      <button onClick={() => {
+        const now = new Date();
+        setLastChecked(now.toLocaleTimeString());
+        const files = document.getElementById('resumes')?.files;
+        setResumeCount(files?.length || 0);
+      }}>
+        Simulate Upload
+      </button>
+    </section>
   );
-}
+};
+
+export default ResumeStats;
