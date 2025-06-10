@@ -52,11 +52,12 @@ const ResumeStats = () => {
           borderRadius: '6px',
           cursor: 'pointer'
         }}>
-          Submit
+          Analysis
         </button>
       </form>
 
-      <section className="stats-section" style={{ marginTop: '2rem' }}>
+      <section className="stats-section" style={{ marginTop: '2rem', backgroundColor: '#a855f7',
+          color: '#fff' }}>
         <h3>Resume Stats</h3>
         <p>Total Resumes Uploaded: {uploadedFiles.length}</p>
         <p>Last Checked: {lastChecked || '—'}</p>
@@ -64,7 +65,6 @@ const ResumeStats = () => {
           onClick={simulateUpload}
           style={{ marginTop: '0.5rem', padding: '0.5rem 1rem', cursor: 'pointer' }}
         >
-          Simulate Upload
         </button>
       </section>
     </div>
