@@ -101,7 +101,7 @@ export default function ResumeUpload() {
           onMouseOver={(e) => e.target.style.backgroundColor = '#7c3aed'}
           onMouseOut={(e) => e.target.style.backgroundColor = '#a855f7'}
         >
-          Submit for Analysis
+          Analysis
         </button>
       </form>
 
