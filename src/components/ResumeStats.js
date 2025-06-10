@@ -1,41 +1,73 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 const ResumeStats = () => {
-  const [resumeCount, setResumeCount] = useState(0);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
   const [lastChecked, setLastChecked] = useState('');
 
-  useEffect(() => {
-    const uploadInput = document.getElementById('file-upload'); // ID of your actual upload input
-    const submitBtn = document.getElementById('submitBtn'); // Button that triggers the upload
+  const handleFileChange = (e) => {
+    setUploadedFiles([...e.target.files]);
+  };
 
-    const updateStats = () => {
-      const files = uploadInput?.files;
-      if (files && files.length > 0) {
-        setResumeCount(files.length);
-        setLastChecked(new Date().toLocaleString());
-      }
-    };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (uploadedFiles.length > 0) {
+      setLastChecked(new Date().toLocaleString());
+    }
+  };
 
-    submitBtn?.addEventListener('click', updateStats);
-
-    return () => {
-      submitBtn?.removeEventListener('click', updateStats);
-    };
-  }, []);
+  const simulateUpload = () => {
+    setLastChecked(new Date().toLocaleString());
+  };
 
   return (
-    <section className="stats-section" style={{ marginTop: '2rem' }}>
-      <h3>Resume Stats</h3>
-      <p>Total Resumes Uploaded: {resumeCount}</p>
-      <p>Last Checked: {lastChecked || '—'}</p>
-      <button onClick={() => {
-        const files = document.getElementById('file-upload')?.files;
-        setResumeCount(files?.length || 0);
-        setLastChecked(new Date().toLocaleString());
-      }}>
-        Simulate Upload
-      </button>
-    </section>
+    <div>
+      <form onSubmit={handleSubmit} id="uploadForm">
+        <div style={{ border: '2px dashed #a855f7', padding: '2rem', textAlign: 'center' }}>
+          <p>Drag & drop your resume here, or click to select</p>
+          <label htmlFor="file-upload" style={{ cursor: 'pointer', color: '#7c3aed', fontWeight: 'bold' }}>
+            Select File
+          </label>
+          <input
+            type="file"
+            id="file-upload"
+            onChange={handleFileChange}
+            style={{ display: 'none' }}
+            multiple
+          />
+          {uploadedFiles.length > 0 && (
+            <div style={{ marginTop: '1rem', backgroundColor: '#f3e8ff', padding: '0.5rem' }}>
+              {Array.from(uploadedFiles).map((file, idx) => (
+                <p key={idx}>📄 {file.name}</p>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <button type="submit" style={{
+          marginTop: '1rem',
+          backgroundColor: '#a855f7',
+          color: '#fff',
+          padding: '0.5rem 1rem',
+          border: 'none',
+          borderRadius: '6px',
+          cursor: 'pointer'
+        }}>
+          Submit
+        </button>
+      </form>
+
+      <section className="stats-section" style={{ marginTop: '2rem' }}>
+        <h3>Resume Stats</h3>
+        <p>Total Resumes Uploaded: {uploadedFiles.length}</p>
+        <p>Last Checked: {lastChecked || '—'}</p>
+        <button
+          onClick={simulateUpload}
+          style={{ marginTop: '0.5rem', padding: '0.5rem 1rem', cursor: 'pointer' }}
+        >
+          Simulate Upload
+        </button>
+      </section>
+    </div>
   );
 };
 
