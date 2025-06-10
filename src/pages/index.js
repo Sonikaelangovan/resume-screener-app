@@ -18,7 +18,7 @@ export default function Home() {
       for (let i = 0; i < files.length; i++) {
         const fileItem = document.createElement('div');
         fileItem.className = 'file-item';
-        fileItem.innerHTML = <i class="fas fa-file-alt"></i><span>${files[i].name}</span>;
+        fileItem.innerHTML = '<i class="fas fa-file-alt"></i><span>${files[i].name}</span>';
         fileList.appendChild(fileItem);
       }
     };
