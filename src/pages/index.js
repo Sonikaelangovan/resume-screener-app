@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import Head from 'next/head';
 import ResumeUpload from '../components/ResumeUpload';
 import ResumeStats from '../components/ResumeStats';
@@ -18,7 +19,7 @@ export default function Home() {
       for (let i = 0; i < files.length; i++) {
         const fileItem = document.createElement('div');
         fileItem.className = 'file-item';
-        fileItem.innerHTML = '<i class="fas fa-file-alt"></i><span>${files[i].name}</span>';
+        fileItem.innerHTML = `<i class="fas fa-file-alt"></i><span>${files[i].name}</span>`;
         fileList.appendChild(fileItem);
       }
     };
@@ -66,11 +67,12 @@ export default function Home() {
             education: "Bachelor's Degree"
           }
         ];
+
         resultSection.innerHTML = '<h2>Top Matches</h2>';
         results.forEach(res => {
           const card = document.createElement('div');
           card.className = 'result-card';
-          card.innerHTML = 
+          card.innerHTML = `
             <div class="result-header">
               <div class="result-title"><i class="fas fa-user-tie"></i><h3>${res.filename}</h3></div>
               <div class="match-score"><i class="fas fa-star"></i>${res.match_score}%</div>
@@ -84,7 +86,7 @@ export default function Home() {
                 <div class="metric"><i class="fas fa-graduation-cap"></i><span>${res.education}</span></div>
               </div>
             </div>
-          ;
+          `;
           resultSection.appendChild(card);
         });
         resultSection.scrollIntoView({ behavior: 'smooth' });
@@ -118,6 +120,7 @@ export default function Home() {
       form.removeEventListener('submit', handleFormSubmit);
     };
   }, []);
+
   return (
     <>
       <Head>
@@ -178,6 +181,7 @@ export default function Home() {
           </div>
         </div>
       </section>
+
       <ResumeUpload />
       <ResumeStats />
 
