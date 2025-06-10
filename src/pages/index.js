@@ -181,7 +181,7 @@ export default function Home() {
         </div>
       </section>
       <section className="upload-section" id="upload"><center>
-      <h1> Upload Resumes </h1></center>
+      <h2> Upload Resumes </h2></center>
       </section>
       <ResumeUpload />
 
