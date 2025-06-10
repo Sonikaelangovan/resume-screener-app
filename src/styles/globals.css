@@ -247,6 +247,9 @@
     .file-upload:hover {
       background: #f0e6ff;
     }
+    .drag-over {
+    background-color: #e9d8ff;
+    }
     .file-upload i {
       font-size: 2rem;
       color: #8e2de2;
