@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import Head from 'next/head';
 import ResumeUpload from '../components/ResumeUpload';
-import ResumeStats from '../components/ResumeStats';
+// import ResumeStats from '../components/ResumeStats';
 
 export default function Home() {
   useEffect(() => {
