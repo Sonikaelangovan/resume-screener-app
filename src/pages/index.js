@@ -179,7 +179,7 @@ export default function Home() {
             <span>Get Ranked Candidates</span>
           </div>
         </div>
-      </section><br>
+      </section><br><br>
       <section className="upload-section" id="upload"><center>
       <h2> Upload Resumes </h2></center>
       </section>
