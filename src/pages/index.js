@@ -1,5 +1,4 @@
 import Head from 'next/head';
-import { useEffect } from 'react';
 import ResumeUpload from '../components/ResumeUpload';
 import ResumeStats from '../components/ResumeStats';
 
@@ -19,7 +18,7 @@ export default function Home() {
       for (let i = 0; i < files.length; i++) {
         const fileItem = document.createElement('div');
         fileItem.className = 'file-item';
-        fileItem.innerHTML = `<i class="fas fa-file-alt"></i><span>${files[i].name}</span>`;
+        fileItem.innerHTML = <i class="fas fa-file-alt"></i><span>${files[i].name}</span>;
         fileList.appendChild(fileItem);
       }
     };
@@ -71,7 +70,7 @@ export default function Home() {
         results.forEach(res => {
           const card = document.createElement('div');
           card.className = 'result-card';
-          card.innerHTML = `
+          card.innerHTML = 
             <div class="result-header">
               <div class="result-title"><i class="fas fa-user-tie"></i><h3>${res.filename}</h3></div>
               <div class="match-score"><i class="fas fa-star"></i>${res.match_score}%</div>
@@ -85,7 +84,7 @@ export default function Home() {
                 <div class="metric"><i class="fas fa-graduation-cap"></i><span>${res.education}</span></div>
               </div>
             </div>
-          `;
+          ;
           resultSection.appendChild(card);
         });
         resultSection.scrollIntoView({ behavior: 'smooth' });
@@ -119,13 +118,18 @@ export default function Home() {
       form.removeEventListener('submit', handleFormSubmit);
     };
   }, []);
-
   return (
     <>
       <Head>
         <title>Resume Screener AI</title>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
+        />
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        />
       </Head>
 
       <nav className="navbar">
@@ -174,37 +178,10 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      <section id="upload" className="upload-section">
-        <div className="container fade-in">
-          <h2>Upload Resumes & Job Description</h2>
-          <form id="uploadForm">
-            <div className="form-group">
-              <label htmlFor="job_description">Job Description</label>
-              <textarea id="job_description" rows="6" required placeholder="Paste job description here..."></textarea>
-            </div>
-            <div className="form-group">
-              <label htmlFor="resumes">Upload Resumes (.pdf/.docx)</label>
-              <div className="file-upload" id="fileUpload">
-                <i className="fas fa-cloud-upload-alt"></i>
-                <p>Drag and drop files here or click to browse</p>
-                <p className="small">Supported formats: PDF, DOCX</p>
-                <input type="file" id="resumes" name="resumes" multiple accept=".pdf,.docx" required style={{ display: 'none' }} />
-              </div>
-              <div className="file-list" id="fileList"></div>
-            </div>
-            <button type="submit" className="btn-primary">
-              <i className="fas fa-search"></i> Analyze
-            </button>
-          </form>
-        </div>
-      </section>
-
       <ResumeUpload />
       <ResumeStats />
 
-      <section id="results" className="results-section container">
-      </section>
+      <section id="results" className="results-section container"></section>
 
       <footer className="footer">
         <div className="footer-content">
