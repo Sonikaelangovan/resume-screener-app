@@ -183,7 +183,7 @@ export default function Home() {
       </section>
 
       <ResumeUpload />
-      <ResumeStats />
+     // <ResumeStats />
 
       <section id="results" className="results-section container"></section>
 
