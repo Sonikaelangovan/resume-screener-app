@@ -1,41 +1,41 @@
-import { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 const ResumeStats = () => {
-  const [resumeCount, setResumeCount] = useState(0);
+  const [resumes, setResumes] = useState([]);
   const [lastChecked, setLastChecked] = useState('');
 
-  useEffect(() => {
-    const updateStats = () => {
-      const files = document.getElementById('resumes')?.files;
-      if (files && files.length > 0) {
-        setResumeCount(files.length);
-      }
-      const now = new Date();
-      setLastChecked(now.toLocaleTimeString());
-    };
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    setResumes(files);
+    setLastChecked(new Date().toLocaleString());
+  };
 
-    const form = document.getElementById('uploadForm');
-    form?.addEventListener('submit', updateStats);
-
-    return () => {
-      form?.removeEventListener('submit', updateStats);
-    };
-  }, []);
+  const handleSimulateUpload = () => {
+    setLastChecked(new Date().toLocaleString());
+  };
 
   return (
-    <section className="stats-section">
-      <h3>Resume Stats</h3>
-      <p>Total Resumes Uploaded: {resumeCount}</p>
-      <p>Last Checked: {lastChecked}</p>
-      <button onClick={() => {
-        const now = new Date();
-        setLastChecked(now.toLocaleTimeString());
-        const files = document.getElementById('resumes')?.files;
-        setResumeCount(files?.length || 0);
-      }}>
-        Simulate Upload
-      </button>
-    </section>
+    <div>
+      <form id="uploadForm">
+        <input
+          type="file"
+          id="resumes"
+          onChange={handleFileChange}
+          multiple
+          accept=".pdf,.doc,.docx"
+        />
+        <button type="submit">Submit</button>
+      </form>
+
+      <section className="stats-section">
+        <h3>Resume Stats</h3>
+        <p>Total Resumes Uploaded: {resumes.length}</p>
+        <p>Last Checked: {lastChecked || '—'}</p>
+        <button onClick={handleSimulateUpload}>
+          Simulate Upload
+        </button>
+      </section>
+    </div>
   );
 };
 
