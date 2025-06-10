@@ -1,5 +1,7 @@
 import Head from 'next/head';
 import { useEffect } from 'react';
+import ResumeUpload from '../components/ResumeUpload';
+import ResumeStats from '../components/ResumeStats';
 
 export default function Home() {
   useEffect(() => {
@@ -125,7 +127,8 @@ export default function Home() {
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
       </Head>
-          <nav className="navbar">
+
+      <nav className="navbar">
         <div className="logo">
           <i className="fas fa-file-alt"></i>
           ResumeScreener.ai
@@ -182,23 +185,11 @@ export default function Home() {
             </div>
             <div className="form-group">
               <label htmlFor="resumes">Upload Resumes (.pdf/.docx)</label>
-              <div
-                className="file-upload"
-                id="fileUpload"
-                onClick={() => document.getElementById('resumes').click()}
-              >
+              <div className="file-upload" id="fileUpload">
                 <i className="fas fa-cloud-upload-alt"></i>
                 <p>Drag and drop files here or click to browse</p>
                 <p className="small">Supported formats: PDF, DOCX</p>
-                <input
-                  type="file"
-                  id="resumes"
-                  name="resumes"
-                  multiple
-                  accept=".pdf,.docx"
-                  required
-                  style={{ display: 'none' }}
-                />
+                <input type="file" id="resumes" name="resumes" multiple accept=".pdf,.docx" required style={{ display: 'none' }} />
               </div>
               <div className="file-list" id="fileList"></div>
             </div>
@@ -209,79 +200,10 @@ export default function Home() {
         </div>
       </section>
 
-                    <section id="results" className="results-section container">
-        {/* Sample results - JS will replace these */}
-        <h2>Top Matches</h2>
+      <ResumeUpload />
+      <ResumeStats />
 
-        <div className="result-card">
-          <div className="result-header">
-            <div className="result-title">
-              <i className="fas fa-user-tie"></i>
-              <h3>John Smith.pdf</h3>
-            </div>
-            <div className="match-score">
-              <i className="fas fa-star"></i>
-              92%
-            </div>
-          </div>
-          <div className="result-content">
-            <h4>Relevant Experience</h4>
-            <p>
-              Software Engineer with 5+ years of experience in full-stack development. Proficient in JavaScript, React,
-              Node.js, and cloud technologies. Led a team of 5 developers to deliver a customer-facing application that
-              increased user engagement by 30%.
-            </p>
-            <div className="result-metrics">
-              <div className="metric">
-                <i className="fas fa-briefcase"></i>
-                <span>5+ Years Experience</span>
-              </div>
-              <div className="metric">
-                <i className="fas fa-check-circle"></i>
-                <span>3 Skills Matched</span>
-              </div>
-              <div className="metric">
-                <i className="fas fa-graduation-cap"></i>
-                <span>Master&apos;s Degree</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="result-card">
-          <div className="result-header">
-            <div className="result-title">
-              <i className="fas fa-user-tie"></i>
-              <h3>Sarah Johnson.pdf</h3>
-            </div>
-            <div className="match-score">
-              <i className="fas fa-star"></i>
-              87%
-            </div>
-          </div>
-          <div className="result-content">
-            <h4>Relevant Experience</h4>
-            <p>
-              UX/UI Designer with expertise in creating user-centered designs for web and mobile applications.
-              Experience with Figma, Sketch, and Adobe Creative Suite. Collaborated with product managers and developers
-              to deliver intuitive and accessible interfaces.
-            </p>
-            <div className="result-metrics">
-              <div className="metric">
-                <i className="fas fa-briefcase"></i>
-                <span>3+ Years Experience</span>
-              </div>
-              <div className="metric">
-                <i className="fas fa-check-circle"></i>
-                <span>4 Skills Matched</span>
-              </div>
-              <div className="metric">
-                <i className="fas fa-graduation-cap"></i>
-                <span>Bachelor&apos;s Degree</span>
-              </div>
-            </div>
-          </div>
-        </div>
+      <section id="results" className="results-section container">
       </section>
 
       <footer className="footer">
@@ -301,4 +223,3 @@ export default function Home() {
     </>
   );
 }
-
