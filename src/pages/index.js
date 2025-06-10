@@ -1,7 +1,5 @@
 import Head from 'next/head';
 import { useEffect } from 'react';
-import ResumeUpload from '../components/ResumeUpload';
-import ResumeStats from '../components/ResumeStats';
 
 export default function Home() {
   useEffect(() => {
@@ -210,12 +208,7 @@ export default function Home() {
           </form>
         </div>
       </section>
-      <ResumeUpload />
-      <ResumeStats />
 
-      <section id="results" className="results-section container">
-        {/* JS will populate results here */}
-      </section>
                     <section id="results" className="results-section container">
         {/* Sample results - JS will replace these */}
         <h2>Top Matches</h2>
