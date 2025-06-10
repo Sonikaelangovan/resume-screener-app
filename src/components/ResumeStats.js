@@ -1,41 +1,41 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const ResumeStats = () => {
-  const [resumes, setResumes] = useState([]);
+  const [resumeCount, setResumeCount] = useState(0);
   const [lastChecked, setLastChecked] = useState('');
 
-  const handleFileChange = (e) => {
-    const files = Array.from(e.target.files);
-    setResumes(files);
-    setLastChecked(new Date().toLocaleString());
-  };
+  useEffect(() => {
+    const uploadInput = document.getElementById('file-upload'); // ID of your actual upload input
+    const submitBtn = document.getElementById('submitBtn'); // Button that triggers the upload
 
-  const handleSimulateUpload = () => {
-    setLastChecked(new Date().toLocaleString());
-  };
+    const updateStats = () => {
+      const files = uploadInput?.files;
+      if (files && files.length > 0) {
+        setResumeCount(files.length);
+        setLastChecked(new Date().toLocaleString());
+      }
+    };
+
+    submitBtn?.addEventListener('click', updateStats);
+
+    return () => {
+      submitBtn?.removeEventListener('click', updateStats);
+    };
+  }, []);
 
   return (
-    <div>
-      <form id="uploadForm">
-        <input
-          type="file"
-          id="resumes"
-          onChange={handleFileChange}
-          multiple
-          accept=".pdf,.doc,.docx"
-        />
-        <button type="submit">Submit</button>
-      </form>
-
-      <section className="stats-section">
-        <h3>Resume Stats</h3>
-        <p>Total Resumes Uploaded: {resumes.length}</p>
-        <p>Last Checked: {lastChecked || '—'}</p>
-        <button onClick={handleSimulateUpload}>
-          Simulate Upload
-        </button>
-      </section>
-    </div>
+    <section className="stats-section" style={{ marginTop: '2rem' }}>
+      <h3>Resume Stats</h3>
+      <p>Total Resumes Uploaded: {resumeCount}</p>
+      <p>Last Checked: {lastChecked || '—'}</p>
+      <button onClick={() => {
+        const files = document.getElementById('file-upload')?.files;
+        setResumeCount(files?.length || 0);
+        setLastChecked(new Date().toLocaleString());
+      }}>
+        Simulate Upload
+      </button>
+    </section>
   );
 };
 
