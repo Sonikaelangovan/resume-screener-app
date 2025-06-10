@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import Head from 'next/head';
 import ResumeUpload from '../components/ResumeUpload';
-// import ResumeStats from '../components/ResumeStats';
 
 export default function Home() {
   useEffect(() => {
@@ -183,7 +182,6 @@ export default function Home() {
       </section>
 
       <ResumeUpload />
-     // <ResumeStats />
 
       <section id="results" className="results-section container"></section>
 
