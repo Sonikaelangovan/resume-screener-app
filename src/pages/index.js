@@ -1,19 +1,10 @@
-import { useEffect } from 'react';
+// pages/index.js
+import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import ResumeUpload from '../components/ResumeUpload';
 
 export default function Home() {
-  
-  const handleAnalyze = async () => {
-  const response = await fetch('/api/screen', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ resumeText: extractedText }), // extractedText = plain text from PDF
-  });
-
-  const data = await response.json();
-  setResult(data.result); // show it on screen
-};
+  const [result, setResult] = useState(null);
 
   useEffect(() => {
     const fileUpload = document.getElementById('fileUpload');
@@ -48,10 +39,10 @@ export default function Home() {
       const resumes = fileInput.files;
       const jd = document.getElementById('job_description').value;
 
-      for (let i = 0; i < resumes.length; i++) {
-        formData.append('resumes', resumes[i]);
+      if (resumes.length === 0 || !jd.trim()) {
+        alert('Please upload at least one resume and provide a job description.');
+        return;
       }
-      formData.append('job_description', jd);
 
       const submitBtn = form.querySelector('button[type="submit"]');
       const originalText = submitBtn.innerHTML;
@@ -59,48 +50,23 @@ export default function Home() {
       submitBtn.disabled = true;
 
       try {
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        const results = [
-          {
-            filename: 'John Smith.pdf',
-            match_score: 92,
-            text_snippet: 'Software Engineer with 5+ years...',
-            experience: '5+ Years Experience',
-            skills: '3 Skills Matched',
-            education: "Master's Degree"
-          },
-          {
-            filename: 'Sarah Johnson.pdf',
-            match_score: 87,
-            text_snippet: 'UX/UI Designer with expertise...',
-            experience: '3+ Years Experience',
-            skills: '4 Skills Matched',
-            education: "Bachelor's Degree"
-          }
-        ];
+        // Assuming only one file for demo (can be extended to multiple)
+        const file = resumes[0];
+        const reader = new FileReader();
+        reader.onload = async () => {
+          const text = reader.result;
 
-        resultSection.innerHTML = '<h2>Top Matches</h2>';
-        results.forEach(res => {
-          const card = document.createElement('div');
-          card.className = 'result-card';
-          card.innerHTML = `
-            <div class="result-header">
-              <div class="result-title"><i class="fas fa-user-tie"></i><h3>${res.filename}</h3></div>
-              <div class="match-score"><i class="fas fa-star"></i>${res.match_score}%</div>
-            </div>
-            <div class="result-content">
-              <h4>Relevant Experience</h4>
-              <p>${res.text_snippet}</p>
-              <div class="result-metrics">
-                <div class="metric"><i class="fas fa-briefcase"></i><span>${res.experience}</span></div>
-                <div class="metric"><i class="fas fa-check-circle"></i><span>${res.skills}</span></div>
-                <div class="metric"><i class="fas fa-graduation-cap"></i><span>${res.education}</span></div>
-              </div>
-            </div>
-          `;
-          resultSection.appendChild(card);
-        });
-        resultSection.scrollIntoView({ behavior: 'smooth' });
+          const response = await fetch('/api/screen', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ resume: text, job: jd })
+          });
+
+          const data = await response.json();
+          resultSection.innerHTML = `<h2>Result</h2><pre>${data.result}</pre>`;
+          resultSection.scrollIntoView({ behavior: 'smooth' });
+        };
+        reader.readAsText(file);
       } catch (err) {
         console.error(err);
         alert('Something went wrong');
@@ -136,14 +102,8 @@ export default function Home() {
     <>
       <Head>
         <title>Resume Screener AI</title>
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
-        />
-        <link
-          rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-        />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
       </Head>
 
       <nav className="navbar">
@@ -174,27 +134,17 @@ export default function Home() {
       <section id="how-it-works" className="info-section">
         <h2>How It Works</h2>
         <div className="info-cards">
-          <div className="card">
-            <i className="fas fa-upload"></i>
-            <span>Upload Resumes</span>
-          </div>
-          <div className="card">
-            <i className="fas fa-file-alt"></i>
-            <span>Paste Job Description</span>
-          </div>
-          <div className="card">
-            <i className="fas fa-brain"></i>
-            <span>AI Analyzes Content</span>
-          </div>
-          <div className="card">
-            <i className="fas fa-chart-line"></i>
-            <span>Get Ranked Candidates</span>
-          </div>
+          <div className="card"><i className="fas fa-upload"></i><span>Upload Resumes</span></div>
+          <div className="card"><i className="fas fa-file-alt"></i><span>Paste Job Description</span></div>
+          <div className="card"><i className="fas fa-brain"></i><span>AI Analyzes Content</span></div>
+          <div className="card"><i className="fas fa-chart-line"></i><span>Get Ranked Candidates</span></div>
         </div>
       </section>
-      <section className="upload-section" id="upload"><center>
-      <h2> Upload Resumes </h2></center>
+
+      <section className="upload-section" id="upload">
+        <center><h2>Upload Resumes</h2></center>
       </section>
+
       <ResumeUpload />
 
       <section id="results" className="results-section container"></section>
