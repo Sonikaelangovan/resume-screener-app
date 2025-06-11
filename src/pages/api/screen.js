@@ -2,12 +2,18 @@
 import axios from 'axios';
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method Not Allowed' });
+  }
 
   const { resume, job } = req.body;
 
+  if (!resume || !job) {
+    return res.status(400).json({ error: 'Missing resume or job description' });
+  }
+
   const prompt = `
-You're an AI HR assistant. Analyze the following resume against the job description and give a short review and a match percentage.
+You are an AI HR assistant. Compare the resume with the job description and provide a short review and a match percentage.
 
 Resume:
 ${resume}
@@ -25,6 +31,7 @@ Match Score: <number>%`;
       {
         model: 'gpt-3.5-turbo',
         messages: [{ role: 'user', content: prompt }],
+        temperature: 0.7,
       },
       {
         headers: {
@@ -34,10 +41,10 @@ Match Score: <number>%`;
       }
     );
 
-    const result = response.data.choices[0].message.content;
-    res.status(200).json({ result });
+    const result = response.data.choices[0]?.message?.content || 'No response from AI.';
+    return res.status(200).json({ result });
   } catch (error) {
-    console.error(error.response?.data || error.message);
-    res.status(500).json({ error: 'Failed to connect to AI API' });
+    console.error('OpenAI API Error:', error.response?.data || error.message);
+    return res.status(500).json({ error: 'Failed to connect to AI API' });
   }
 }
