@@ -3,6 +3,18 @@ import Head from 'next/head';
 import ResumeUpload from '../components/ResumeUpload';
 
 export default function Home() {
+  
+  const handleAnalyze = async () => {
+  const response = await fetch('/api/screen', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ resumeText: extractedText }), // extractedText = plain text from PDF
+  });
+
+  const data = await response.json();
+  setResult(data.result); // show it on screen
+};
+
   useEffect(() => {
     const fileUpload = document.getElementById('fileUpload');
     const fileInput = document.getElementById('resumes');
