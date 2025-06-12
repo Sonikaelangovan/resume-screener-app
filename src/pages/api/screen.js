@@ -1,61 +1,45 @@
-// pages/api/screen.js
+// src/pages/api/screen.js
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { resume, job } = req.body;
-  if (!resume || !job) {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    return res.status(500).json({ error: 'Missing OpenAI API key' });
+  }
+
+  const { resumeText, jobDescription } = req.body;
+  if (!resumeText || !jobDescription) {
     return res.status(400).json({ error: 'Missing resume or job description' });
   }
 
-  const prompt = `
-Compare the resume to the job description and respond with JSON in this format:
-
-\`\`\`json
-{
-  "review": "[brief analysis]",
-  "score": 85,
-  "recommendation": "[advice or next steps]"
-}
-\`\`\`
-
-Resume:
-${resume}
-
-Job Description:
-${job}
-`;
+  const prompt = `You are an AI HR assistant...`;
 
   try {
     const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
         model: 'gpt-3.5-turbo',
         messages: [{ role: 'user', content: prompt }],
-        temperature: 0.7,
-        max_tokens: 500,
-      }),
+        temperature: 0.3
+      })
     });
 
+    const data = await aiRes.json();
     if (!aiRes.ok) {
-      const errBody = await aiRes.json().catch(() => ({}));
-      return res.status(aiRes.status).json({ error: errBody });
+      return res.status(aiRes.status).json({ error: data });
     }
 
-    const payload = await aiRes.json();
-    let text = payload.choices[0].message.content;
-    text = text.replace(/```(?:json)?/g, '').trim();
-
-    const result = JSON.parse(text);
-    return res.status(200).json(result);
+    const result = data.choices?.[0]?.message?.content.trim() || '';
+    return res.status(200).json({ result });
   } catch (err) {
     console.error('OpenAI Error:', err);
-    return res.status(500).json({ error: 'Resume analysis failed' });
+    return res.status(500).json({ error: 'OpenAI request failed' });
   }
 }
