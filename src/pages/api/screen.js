@@ -6,19 +6,18 @@ export default async function handler(req, res) {
   }
 
   const { resume, job } = req.body;
-
   if (!resume || !job) {
     return res.status(400).json({ error: 'Missing resume or job description' });
   }
 
   const prompt = `
-Compare the resume to the job description and respond with valid JSON in this format:
+Compare the resume to the job description and respond with JSON in this format:
 
 \`\`\`json
 {
   "review": "[brief analysis]",
   "score": 85,
-  "recommendation": "[next step advice or improvement]"
+  "recommendation": "[advice or next steps]"
 }
 \`\`\`
 
@@ -30,7 +29,7 @@ ${job}
 `;
 
   try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -44,21 +43,19 @@ ${job}
       }),
     });
 
-    if (!response.ok) {
-      const errorBody = await response.json().catch(() => ({}));
-      return res.status(response.status).json({ error: errorBody });
+    if (!aiRes.ok) {
+      const errBody = await aiRes.json().catch(() => ({}));
+      return res.status(aiRes.status).json({ error: errBody });
     }
 
-    const data = await response.json();
-    let content = data.choices[0].message.content;
+    const payload = await aiRes.json();
+    let text = payload.choices[0].message.content;
+    text = text.replace(/```(?:json)?/g, '').trim();
 
-    // Remove code fences (```json)
-    content = content.replace(/```(?:json)?/g, '').trim();
-
-    const result = JSON.parse(content);
+    const result = JSON.parse(text);
     return res.status(200).json(result);
   } catch (err) {
     console.error('OpenAI Error:', err);
-    return res.status(500).json({ error: 'Failed to analyze resume' });
+    return res.status(500).json({ error: 'Resume analysis failed' });
   }
 }
