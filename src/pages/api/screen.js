@@ -1,70 +1,64 @@
 // pages/api/screen.js
-import formidable from 'formidable';
-import fs from 'fs';
-import pdfParse from 'pdf-parse';
-import axios from 'axios';
-
-export const config = {
-  api: {
-    bodyParser: false, // Required for formidable
-  },
-};
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
+    res.setHeader('Allow', ['POST']);
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const form = new formidable.IncomingForm({ keepExtensions: true });
+  const { resume, job } = req.body;
 
-  form.parse(req, async (err, fields, files) => {
-    if (err) {
-      console.error('Form parse error:', err);
-      return res.status(500).json({ error: 'Form parsing failed' });
-    }
+  if (!resume || !job) {
+    return res.status(400).json({ error: 'Missing resume or job description' });
+  }
 
-    try {
-      const job = fields.job;
-      const filePath = files.resume.filepath;
+  const prompt = `
+Compare the resume to the job description and respond with valid JSON in this format:
 
-      const dataBuffer = fs.readFileSync(filePath);
-      const parsedPdf = await pdfParse(dataBuffer);
-      const resumeText = parsedPdf.text;
-
-      const prompt = `
-You are an AI HR assistant. Compare the resume with the job description and provide a short review and a match percentage.
+\`\`\`json
+{
+  "review": "[brief analysis]",
+  "score": 85,
+  "recommendation": "[next step advice or improvement]"
+}
+\`\`\`
 
 Resume:
-${resumeText}
+${resume}
 
 Job Description:
 ${job}
+`;
 
-Reply format:
-Review: <your analysis>
-Match Score: <number>%`;
+  try {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.7,
+        max_tokens: 500,
+      }),
+    });
 
-      const response = await axios.post(
-        'https://api.openai.com/v1/chat/completions',
-        {
-          model: 'gpt-3.5-turbo',
-          messages: [{ role: 'user', content: prompt }],
-          temperature: 0.7,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-
-      const result = response.data.choices[0]?.message?.content || 'No response from AI.';
-      return res.status(200).json({ result });
-
-    } catch (error) {
-      console.error('Processing error:', error);
-      return res.status(500).json({ error: 'Resume analysis failed' });
+    if (!response.ok) {
+      const errorBody = await response.json().catch(() => ({}));
+      return res.status(response.status).json({ error: errorBody });
     }
-  });
+
+    const data = await response.json();
+    let content = data.choices[0].message.content;
+
+    // Remove code fences (```json)
+    content = content.replace(/```(?:json)?/g, '').trim();
+
+    const result = JSON.parse(content);
+    return res.status(200).json(result);
+  } catch (err) {
+    console.error('OpenAI Error:', err);
+    return res.status(500).json({ error: 'Failed to analyze resume' });
+  }
 }
