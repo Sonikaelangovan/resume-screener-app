@@ -20,4 +20,12 @@
     "@tailwindcss/postcss": "^4",
     "tailwindcss": "^4"
   }
+  "dependencies": {
+  "next": "...",
+  "react": "...",
+  // ... other dependencies
+  "mammoth": "^1.6.0", // The version might differ, but it should be here
+  "formidable": "...",
+  "pdf-parse": "..."
+},
 }
