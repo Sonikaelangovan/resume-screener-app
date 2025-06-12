@@ -1,137 +1,150 @@
-import { useEffect } from 'react';
+// pages/index.js
+import { useState, useRef } from 'react'; // Import useState and useRef
 import Head from 'next/head';
-import ResumeUpload from '../components/ResumeUpload';
+// No longer importing ResumeUpload as we're integrating the core logic directly
+// import ResumeUpload from '../components/ResumeUpload';
 
 export default function Home() {
-  useEffect(() => {
-    const fileUpload = document.getElementById('fileUpload');
-    const fileInput = document.getElementById('resumes');
-    const fileList = document.getElementById('fileList');
-    const form = document.getElementById('uploadForm');
-    const resultSection = document.getElementById('results');
+  // State for job description
+  const [jobDescription, setJobDescription] = useState('');
+  // State for uploaded files
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  // State for loading and error messages
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [result, setResult] = useState(null);
 
-    if (!fileUpload || !fileInput || !fileList || !form || !resultSection) return;
+  // Refs for DOM elements instead of getElementById
+  const fileInputRef = useRef(null);
+  const fileUploadAreaRef = useRef(null);
+  const formRef = useRef(null); // Ref for the form
 
-    const updateFileList = () => {
-      fileList.innerHTML = '';
-      const files = fileInput.files;
-      for (let i = 0; i < files.length; i++) {
-        const fileItem = document.createElement('div');
-        fileItem.className = 'file-item';
-        fileItem.innerHTML = `<i class="fas fa-file-alt"></i><span>${files[i].name}</span>`;
-        fileList.appendChild(fileItem);
-      }
-    };
+  // Handle file selection via button click
+  const handleFileUploadClick = () => {
+    fileInputRef.current.click();
+  };
 
-    const handleDrop = (e) => {
-      e.preventDefault();
-      fileUpload.style.backgroundColor = '';
-      fileInput.files = e.dataTransfer.files;
-      updateFileList();
-    };
+  // Handle file selection via input change
+  const handleFileChange = (e) => {
+    setSelectedFiles(Array.from(e.target.files));
+  };
 
-    const handleFormSubmit = async (e) => {
-      e.preventDefault();
+  // Handle drag over effect
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation(); // Prevent default browser behavior
+    if (fileUploadAreaRef.current) {
+      fileUploadAreaRef.current.style.backgroundColor = '#f0e6ff';
+    }
+  };
+
+  // Handle drag leave effect
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation(); // Prevent default browser behavior
+    if (fileUploadAreaRef.current) {
+      fileUploadAreaRef.current.style.backgroundColor = '';
+    }
+  };
+
+  // Handle file drop
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation(); // Prevent default browser behavior
+    if (fileUploadAreaRef.current) {
+      fileUploadAreaRef.current.style.backgroundColor = '';
+    }
+    setSelectedFiles(Array.from(e.dataTransfer.files));
+  };
+
+  // Function to parse resume (assumes a new /api/parse-resume endpoint)
+  const parseResumeToText = async (file) => {
+    setError(null); // Clear previous errors
+    try {
       const formData = new FormData();
-      const resumes = fileInput.files;
-      const jd = document.getElementById('job_description').value;
+      formData.append('resumeFile', file); // Use 'resumeFile' as the field name
 
-      for (let i = 0; i < resumes.length; i++) {
-        formData.append('resumes', resumes[i]);
+      const response = await fetch('/api/parse-resume', { // New API endpoint for parsing
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to parse resume file.');
       }
-      formData.append('job_description', jd);
 
-      const submitBtn = form.querySelector('button[type="submit"]');
-      const originalText = submitBtn.innerHTML;
-      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
-      submitBtn.disabled = true;
+      const data = await response.json();
+      return data.resumeText; // This should be the plain text content of the resume
+    } catch (parseErr) {
+      console.error('Error parsing resume:', parseErr);
+      setError(`Failed to process resume "${file.name}": ${parseErr.message}`);
+      throw parseErr; // Re-throw to stop submission if parsing fails
+    }
+  };
 
-      try {
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        const results = [
-          {
-            filename: 'John Smith.pdf',
-            match_score: 92,
-            text_snippet: 'Software Engineer with 5+ years...',
-            experience: '5+ Years Experience',
-            skills: '3 Skills Matched',
-            education: "Master's Degree"
-          },
-          {
-            filename: 'Sarah Johnson.pdf',
-            match_score: 87,
-            text_snippet: 'UX/UI Designer with expertise...',
-            experience: '3+ Years Experience',
-            skills: '4 Skills Matched',
-            education: "Bachelor's Degree"
-          }
-        ];
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setResult(null);
 
-        resultSection.innerHTML = '<h2>Top Matches</h2>';
-        results.forEach(res => {
-          const card = document.createElement('div');
-          card.className = 'result-card';
-          card.innerHTML = `
-            <div class="result-header">
-              <div class="result-title"><i class="fas fa-user-tie"></i><h3>${res.filename}</h3></div>
-              <div class="match-score"><i class="fas fa-star"></i>${res.match_score}%</div>
-            </div>
-            <div class="result-content">
-              <h4>Relevant Experience</h4>
-              <p>${res.text_snippet}</p>
-              <div class="result-metrics">
-                <div class="metric"><i class="fas fa-briefcase"></i><span>${res.experience}</span></div>
-                <div class="metric"><i class="fas fa-check-circle"></i><span>${res.skills}</span></div>
-                <div class="metric"><i class="fas fa-graduation-cap"></i><span>${res.education}</span></div>
-              </div>
-            </div>
-          `;
-          resultSection.appendChild(card);
-        });
-        resultSection.scrollIntoView({ behavior: 'smooth' });
-      } catch (err) {
-        console.error(err);
-        alert('Something went wrong');
-      } finally {
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
+    if (selectedFiles.length === 0) {
+      setError('Please upload at least one resume.');
+      return;
+    }
+    if (!jobDescription.trim()) {
+      setError('Please provide a job description.');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // 1. Parse the first resume (assuming only one for now based on your previous code)
+      const resumeText = await parseResumeToText(selectedFiles[0]);
+
+      // 2. Send parsed resume text and job description to the /api/screen endpoint
+      const response = await fetch('/api/screen', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          resumeText: resumeText,
+          jobDescription: jobDescription,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        // Handle API errors returned by the backend
+        setError(data.message || data.error || 'An unexpected error occurred during screening.');
+        return; // Stop execution
       }
-    };
 
-    fileUpload.addEventListener('click', () => fileInput.click());
-    fileUpload.addEventListener('dragover', e => {
-      e.preventDefault();
-      fileUpload.style.backgroundColor = '#f0e6ff';
-    });
-    fileUpload.addEventListener('dragleave', () => {
-      fileUpload.style.backgroundColor = '';
-    });
-    fileUpload.addEventListener('drop', handleDrop);
-    fileInput.addEventListener('change', updateFileList);
-    form.addEventListener('submit', handleFormSubmit);
+      // Assuming the backend returns { result: { summary: "...", score: 85 } }
+      setResult(data.result);
+      // Scroll to results if successful
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
 
-    return () => {
-      fileUpload.removeEventListener('click', () => fileInput.click());
-      fileUpload.removeEventListener('dragover', () => {});
-      fileUpload.removeEventListener('dragleave', () => {});
-      fileUpload.removeEventListener('drop', handleDrop);
-      fileInput.removeEventListener('change', updateFileList);
-      form.removeEventListener('submit', handleFormSubmit);
-    };
-  }, []);
+    } catch (err) {
+      // This catch block handles network errors, parseResumeToText errors, or other unexpected errors
+      console.error('Submission error:', err);
+      setError('An error occurred during the screening process. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
       <Head>
         <title>Resume Screener AI</title>
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
-        />
-        <link
-          rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-        />
+        <meta name="description" content="Instantly analyze and rank resumes using AI." />
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
       </Head>
 
       <nav className="navbar">
@@ -162,30 +175,84 @@ export default function Home() {
       <section id="how-it-works" className="info-section">
         <h2>How It Works</h2>
         <div className="info-cards">
-          <div className="card">
-            <i className="fas fa-upload"></i>
-            <span>Upload Resumes</span>
-          </div>
-          <div className="card">
-            <i className="fas fa-file-alt"></i>
-            <span>Paste Job Description</span>
-          </div>
-          <div className="card">
-            <i className="fas fa-brain"></i>
-            <span>AI Analyzes Content</span>
-          </div>
-          <div className="card">
-            <i className="fas fa-chart-line"></i>
-            <span>Get Ranked Candidates</span>
-          </div>
+          <div className="card"><i className="fas fa-upload"></i><span>Upload Resumes</span></div>
+          <div className="card"><i className="fas fa-file-alt"></i><span>Paste Job Description</span></div>
+          <div className="card"><i className="fas fa-brain"></i><span>AI Analyzes Content</span></div>
+          <div className="card"><i className="fas fa-chart-line"></i><span>Get Ranked Candidates</span></div>
         </div>
       </section>
-      <section className="upload-section" id="upload"><center>
-      <h2> Upload Resumes </h2></center>
-      </section>
-      <ResumeUpload />
 
-      <section id="results" className="results-section container"></section>
+      <section className="upload-section" id="upload">
+        <center><h2>Upload Resumes & Job Description</h2></center>
+        <form onSubmit={handleFormSubmit} ref={formRef} className="form-container">
+          <div
+            className="file-upload-area"
+            ref={fileUploadAreaRef}
+            onClick={handleFileUploadClick}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
+            <input
+              type="file"
+              id="resumes"
+              name="resumes"
+              accept=".pdf,.doc,.docx" // Accept common resume formats
+              multiple // Allow multiple files, though current logic only processes one
+              onChange={handleFileChange}
+              ref={fileInputRef}
+              style={{ display: 'none' }} // Hide the actual input
+            />
+            <p>Drag & Drop your resumes here or click to select files</p>
+            <div className="file-list">
+              {selectedFiles.length === 0 ? (
+                <p>No files selected</p>
+              ) : (
+                selectedFiles.map((file, index) => (
+                  <div key={index} className="file-item">
+                    <i className="fas fa-file-alt"></i>
+                    <span>{file.name}</span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          <div className="job-description-container">
+            <label htmlFor="job_description">Job Description:</label>
+            <textarea
+              id="job_description"
+              rows="10"
+              placeholder="Paste the job description here..."
+              value={jobDescription}
+              onChange={(e) => setJobDescription(e.target.value)}
+              required
+            ></textarea>
+          </div>
+
+          {error && <div className="error-message">{error}</div>}
+
+          <button type="submit" className="btn-primary submit-btn" disabled={loading}>
+            {loading ? <><i className="fas fa-spinner fa-spin"></i> Analyzing...</> : 'Analyze Resumes'}
+          </button>
+        </form>
+      </section>
+
+      <section id="results" className="results-section container">
+        <center><h2>Analysis Results</h2></center>
+        {loading && <p className="loading-message">Analyzing... Please wait.</p>}
+        {error && <p className="error-message">{error}</p>}
+        {result ? (
+          <div className="result-display">
+            <h3>Summary:</h3>
+            <p>{result.summary}</p>
+            <h3>Compatibility Score:</h3>
+            <p className="score">{result.score}/100</p>
+          </div>
+        ) : (
+          <p className="no-result-message">Results will appear here after analysis.</p>
+        )}
+      </section>
 
       <footer className="footer">
         <div className="footer-content">
