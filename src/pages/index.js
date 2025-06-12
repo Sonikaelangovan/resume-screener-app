@@ -11,6 +11,9 @@ export default function Home() {
     const form = document.getElementById('uploadForm');
     const resultSection = document.getElementById('results');
 
+    body: JSON.stringify({ resumeText: resumeText, jobDescription: job });
+
+
     if (!fileUpload || !fileInput || !fileList || !form || !resultSection) return;
 
     const updateFileList = () => {
