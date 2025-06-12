@@ -4,8 +4,6 @@ import Head from 'next/head';
 import ResumeUpload from '../components/ResumeUpload';
 
 export default function Home() {
-  const [result, setResult] = useState(null);
-
   useEffect(() => {
     const fileUpload = document.getElementById('fileUpload');
     const fileInput = document.getElementById('resumes');
@@ -35,7 +33,7 @@ export default function Home() {
 
     const handleFormSubmit = async (e) => {
       e.preventDefault();
-      const formData = new FormData();
+
       const resumes = fileInput.files;
       const jd = document.getElementById('job_description').value;
 
@@ -44,29 +42,24 @@ export default function Home() {
         return;
       }
 
+      const formData = new FormData();
+      formData.append('resume', resumes[0]);
+      formData.append('job', jd);
+
       const submitBtn = form.querySelector('button[type="submit"]');
       const originalText = submitBtn.innerHTML;
       submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Analyzing...';
       submitBtn.disabled = true;
 
       try {
-        // Assuming only one file for demo (can be extended to multiple)
-        const file = resumes[0];
-        const reader = new FileReader();
-        reader.onload = async () => {
-          const text = reader.result;
+        const response = await fetch('/api/screen', {
+          method: 'POST',
+          body: formData,
+        });
 
-          const response = await fetch('/api/screen', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ resume: text, job: jd })
-          });
-
-          const data = await response.json();
-          resultSection.innerHTML = `<h2>Result</h2><pre>${data.result}</pre>`;
-          resultSection.scrollIntoView({ behavior: 'smooth' });
-        };
-        reader.readAsText(file);
+        const data = await response.json();
+        resultSection.innerHTML = `<h2>Result</h2><pre>${data.result}</pre>`;
+        resultSection.scrollIntoView({ behavior: 'smooth' });
       } catch (err) {
         console.error(err);
         alert('Something went wrong');
