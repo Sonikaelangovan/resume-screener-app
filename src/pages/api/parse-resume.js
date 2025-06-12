@@ -60,8 +60,4 @@ export default async function handler(req, res) {
     console.error('Resume parsing API error:', error);
     return res.status(500).json({ error: 'Server Error', message: 'Failed to process resume file.' });
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> be3a7785370b43eebde0b074c31833bcda2eb5db
