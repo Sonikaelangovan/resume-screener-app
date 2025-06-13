@@ -6,6 +6,25 @@ export default function ResumeUpload() {
   const [result, setResult] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const analyzeResume = async () => {
+  const res = await fetch('/api/screen', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      resumeText: 'Paste your parsed resume text here',
+      jobDescription: 'Paste the job description here',
+    }),
+  });
+
+  const data = await res.json();
+  if (res.ok) {
+    console.log("AI Result:", data.result);
+  } else {
+    console.error("Error:", data.error);
+  }
+};
+
+
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
   };
