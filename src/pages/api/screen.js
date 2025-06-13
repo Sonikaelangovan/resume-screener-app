@@ -12,27 +12,32 @@ export default async function handler(req, res) {
   try {
     const prompt = `Evaluate this resume:\n\n${resumeText}\n\nFor this job description:\n\n${jobDescription}\n\nGive a suitability score (0-100) and a short explanation.`;
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta1/models/chat-bison-001:generateMessage?key=${process.env.PALM_API_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: [
-            {
-              author: 'user',
-              content: prompt,
-            },
-          ],
-        }),
-      }
-    );
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta1/models/chat-bison-001:generateMessage?key=${process.env.PALM_API_KEY}`;
+
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: [
+          {
+            author: 'user',
+            content: prompt,
+          },
+        ],
+      }),
+    });
 
     const data = await response.json();
 
-    if (!response.ok) {
-      console.error('PaLM API error:', data);
-      return res.status(500).json({ message: data.error?.message || 'Failed to analyze resume' });
+    // Log everything
+    console.log('API URL:', apiUrl);
+    console.log('Prompt:', prompt);
+    console.log('Response Status:', response.status);
+    console.log('Response Data:', data);
+
+    if (!response.ok || data.error) {
+      console.error('PaLM API Error:', data.error || data);
+      return res.status(500).json({ message: data.error?.message || 'Failed to analyze resume', details: data });
     }
 
     const aiMessage = data.candidates?.[0]?.content || 'No response received.';
@@ -43,7 +48,7 @@ export default async function handler(req, res) {
       },
     });
   } catch (error) {
-    console.error('Error in /screen API:', error.message);
-    res.status(500).json({ message: 'Internal error', error: error.message });
+    console.error('Unexpected error in /screen API:', error.message);
+    res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 }
