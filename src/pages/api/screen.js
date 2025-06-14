@@ -1,19 +1,39 @@
 export default async function handler(req, res) {
+  // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Only POST requests allowed' });
   }
 
   const { resumeText, jobDescription } = req.body;
 
+  // Validate input
   if (!resumeText || !jobDescription) {
     return res.status(400).json({ message: 'Missing resumeText or jobDescription' });
   }
 
+  // Build the prompt
+  const prompt = `
+Evaluate the following resume for suitability to the job description.
+
+Resume:
+${resumeText}
+
+Job Description:
+${jobDescription}
+
+Provide a short summary of the candidate's fit, strengths/weaknesses, and give a compatibility score from 0 to 100.
+  `.trim();
+
   try {
-    const prompt = `Evaluate this resume:\n\n${resumeText}\n\nFor this job description:\n\n${jobDescription}\n\nGive a suitability score (0-100) and a short explanation.`;
+    const apiKey = process.env.PALM_API_KEY;
 
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta1/models/chat-bison-001:generateMessage?key=${process.env.PALM_API_KEY}`;
+    if (!apiKey) {
+      return res.status(500).json({ message: 'Missing PaLM API key in environment variables.' });
+    }
 
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta1/models/chat-bison-001:generateMessage?key=${apiKey}`;
+
+    // Send request to PaLM API
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -29,26 +49,26 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    // Log everything
-    console.log('API URL:', apiUrl);
-    console.log('Prompt:', prompt);
-    console.log('Response Status:', response.status);
-    console.log('Response Data:', data);
+    // Debug logs for troubleshooting
+    console.log('[PaLM API Response]', JSON.stringify(data, null, 2));
 
     if (!response.ok || data.error) {
-      console.error('PaLM API Error:', data.error || data);
-      return res.status(500).json({ message: data.error?.message || 'Failed to analyze resume', details: data });
+      console.error('❌ PaLM API Error:', data.error || data);
+      return res.status(500).json({
+        message: data.error?.message || 'Failed to analyze resume',
+        details: data,
+      });
     }
 
-    const aiMessage = data.candidates?.[0]?.content || 'No response received.';
-    res.status(200).json({
-      result: {
-        summary: aiMessage,
-        score: 'N/A',
-      },
+    const aiMessage = data.candidates?.[0]?.content?.trim() || 'No response received from AI.';
+
+    // Return result
+    return res.status(200).json({
+      result: aiMessage,
     });
+
   } catch (error) {
-    console.error('Unexpected error in /screen API:', error.message);
-    res.status(500).json({ message: 'Internal server error', error: error.message });
+    console.error('❌ Server Error in /api/screen:', error);
+    return res.status(500).json({ message: 'Internal Server Error', error: error.message });
   }
 }
